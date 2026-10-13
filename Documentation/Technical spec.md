@@ -6,9 +6,10 @@
 tiers across 3 Availability Zones. Connectivity Two-tier application of backend App tier and RDS database tier each in
 separate private subnet.
 
-**Specification**: A public CloudFront in front of a Spring Boot application tier (EC2, private subnets), backed by an isolated
-RDS PostgreSQL Multi-AZ database, all across 3 Availability Zones (`us-east-1a`, `us-east-1b`, `us-east-1c`). Deploying
-a few EC2 Auto Scaling group in a private subnet and attach them to an application load balancer in a public subnet.
+**Specification**: A public CloudFront in front of a Spring Boot application tier (EC2, private subnets), backed by an
+isolated RDS PostgreSQL Multi-AZ database, all across 3 Availability Zones (`us-east-1a`, `us-east-1b`, `us-east-1c`).
+Deploying a few EC2 Auto Scaling group in a private subnet and attach them to an application load balancer in a public
+subnet.
 
 ## Architecture overview
 
@@ -19,8 +20,7 @@ a few EC2 Auto Scaling group in a private subnet and attach them to an applicati
 * **Networking** — VPC with 3 AZs, public/private/database subnets.
 * **ALB public facing** — Application Load Balancer (ALB) in public subnet (3 AZs) for distributing incoming traffic.
 * **Application Tier** — EC2 instances backend App Tier in private subnet with SSM agent installed (which has NAT
-  Gateway
-  to access internet). **Access via SSM only** — no bastion host, no SSH inbound rule, no public IP on
+  Gateway to access internet). **Access via SSM only** — no bastion host, no SSH inbound rule, no public IP on
   the app or DB tiers.
 * **Auto Scaling** — Amazon EC2 Auto Scaling group.
 * **Database Tier** — Data Tier RDS PostgreSQL (Multi-AZ) in isolated database subnets.
@@ -262,8 +262,7 @@ Two property blocks trigger the instance refresh. These are `launch_template` an
 ![Instance refresh.png](Instance%20refresh.png)
 
 Inside the `launch_template` property block, two values are specified: `id` and `version`. A direct dependency is
-created by
-specifying these values to a specific `aws_launch_template` resource.
+created by specifying these values to a specific `aws_launch_template` resource.
 
 Then, inside the `instance_refresh` property, the triggers value is set to `launch_template`, ensuring that the Amazon
 EC2 Auto Scaling group would trigger that as soon as the launch template is updated.
