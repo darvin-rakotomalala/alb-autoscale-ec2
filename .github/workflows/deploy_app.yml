@@ -130,6 +130,22 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Wait for instance to be SSM-online
+        run: |
+          for i in $(seq 1 30); do
+            PING=$(aws ssm describe-instance-information \
+              --filters "Key=InstanceIds,Values=${{ env.INSTANCE_ID }}" \
+              --query "InstanceInformationList[0].PingStatus" --output text)
+            if [ "$PING" = "Online" ]; then
+              echo "Instance is SSM-online."
+              exit 0
+            fi
+            echo "Attempt $i: SSM status is '$PING', waiting..."
+            sleep 10
+          done
+          echo "::error::${{ env.INSTANCE_ID }} never became SSM-online"
+          exit 1
+
       - name: Deploy JAR via SSM
         id: ssm-deploy
         run: |
