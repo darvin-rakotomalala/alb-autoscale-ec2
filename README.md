@@ -231,21 +231,29 @@ screenshot in ```Screenshot verification```.
 
 - **Launch Templates created with the desired specifications.**
 
+![3-Launch Template 2.png](Screenshot%20verification/3-Launch%20Template%202.png)
 
 - **EC2 instance created**
 
+![2-EC2 Instances.png](Screenshot%20verification/2-EC2%20Instances.png)
 
 - **Auto Scaling Group with load balancer target group**
 
+![6-Auto Scaling Group.png](Screenshot%20verification/6-Auto%20Scaling%20Group.png)
+
+![5-Target Group.png](Screenshot%20verification/5-Target%20Group.png)
 
 - **Amazon RDS PostgreSQL created**
 
+![7-RDS.png](Screenshot%20verification/7-RDS.png)
 
 - **CloudFront created**
 
+![8-CloudFront.png](Screenshot%20verification/8-CloudFront.png)
 
 - **Route 53 created**
 
+![9-Record Route 53.png](Screenshot%20verification/9-Record%20Route%2053.png)
 
 - **Test our Application using Postman with Route 53 DNS**
 
@@ -269,15 +277,24 @@ After a few seconds, when you refresh the URL, you will notice that the link hov
 
 If you navigate the Auto Scaling group page, you will notice some activity similar to the one below.
 
-    SCREENSHOT
+![17-Terminate one of the EC2 instances 1.png](Screenshot%20verification/17-Terminate%20one%20of%20the%20EC2%20instances%201.png)
+
+![17-Terminate one of the EC2 instances 2.png](Screenshot%20verification/17-Terminate%20one%20of%20the%20EC2%20instances%202.png)
+
+![17-Terminate one of the EC2 instances 3.png](Screenshot%20verification/17-Terminate%20one%20of%20the%20EC2%20instances%203.png)
 
 Similarly, in the EC2 Instances section, you’ll notice that a **new EC2 is initialized** in **the same availability
 zone** as the previous (terminated) instance.
 
-    SCREENSHOT
+![18-New Amazon EC2 instance 1.png](Screenshot%20verification/18-New%20Amazon%20EC2%20instance%201.png)
+
+![18-New Amazon EC2 instance 4.png](Screenshot%20verification/18-New%20Amazon%20EC2%20instance%204.png)
 
 After a few minutes, you’ll notice that the new Amazon EC2 instance is part of the Load Balancer’s target group (check
 _EC2 → Load Balancing → Target Groups_).
+
+![18-New Amazon EC2 instance 3.png](Screenshot%20verification/18-New%20Amazon%20EC2%20instance%203.png)
+
 And on each URL refresh, the new instance’s webpage is added to the existing two. **So, that is how hosting an
 application in an Auto Scaling group differs from hosting it on an Amazon EC2 instance**. We observed this behavior
 because the `desired_capacity` of the autoscaling group is set to 2 (check the code repository). When we terminated one
@@ -290,24 +307,27 @@ to that instance.
 **Test target tracking**
 
 Generate load with `hey`. Here `-c 20 -q 5` gives roughly 100 req/s for 15 minutes:
-
 `hey -z 15m -c 20 -q 5 https://api.cloudwithdarvin.com/notes`
+
+![19-Scale-out policies 1.png](Screenshot%20verification/19-Scale-out%20policies%201.png)
 
 Press `Ctrl+C` to stop the script. After approximately 10 to 15 minutes or so, another EC2 instance was added by the
 scaling policy, and I saw six instances. Even if there is high CPU consumption, there won’t be any more Amazon EC2
 instances because the maximum size specified in the Amazon EC2 Auto Scaling group is 6.
 
-    SCREENSHOT
+![19-Scale-out policies 2.png](Screenshot%20verification/19-Scale-out%20policies%202.png)
 
 After completing health check evaluations, the load balancer was routing traffic to all the Amazon EC2 instances. Here
 is the image of the load balancer’s target group.
 
-    SCREENSHOT
+![19-Scale-out policies 3.png](Screenshot%20verification/19-Scale-out%20policies%203.png)
 
 And that is how the scale-out policy works. Once I stopped the `hey` script [Ctrl+C], gradually, the Amazon EC2
 instances were removed one by one until the number of active instances equaled the desired capacity. If I had not added
 the scale-in policy, the number of Amazon EC2 instances would have remained high, defeating the purpose of having an
 auto-scaling group.
+
+![20-19-Scale-in policies 1.png](Screenshot%20verification/20-19-Scale-in%20policies%201.png)
 
 **Test auto-scaling for CPU utilization**
 
@@ -315,7 +335,6 @@ Since the Amazon EC2 Auto Scaling group tracks the CPU Utilization metric, I ins
 instance. The `user_data` script has the code to install that.
 
 Connect to any Amazon EC2 instance using Session Manager and run the command:
-
 `nohup stress --cpu "$(nproc)" --timeout 900 > /tmp/stress.log 2>&1 &`
 
 ### Cleanup
@@ -330,13 +349,14 @@ To destroy all resources, run ```terraform destroy -var-file="terraform.tfvars" 
 
 This project delivers a secure, highly available, and auto-scaling two-tier application platform on AWS, defined
 entirely as code with Terraform. It answers the three questions raised at the start: instances are **self-healing**,
-capacity **scales with CPU load**, and changes roll out through a **rolling instance refresh** with no downtime.
+capacity **scales with CPU load and ALB request count**, and changes roll out through a **rolling instance refresh**
+with no downtime.
 
 We have successfully:
 
 **Application**
 
-* Built a Spring Boot CRUD (Notes) REST API with externalized database configuration, packaged as a JAR and stored in S3
+* Built a Spring Boot CRUD REST API with externalized database configuration, packaged as a JAR and stored in S3
 * Deployed the JAR to EC2 through the CI/CD workflow and tested all CRUD endpoints through the custom domain
 
 **Networking and security**
