@@ -186,6 +186,7 @@ module "autoscaling-group" {
   instance_type_overrides         = var.instance_type_overrides
   on_demand_base_capacity         = var.on_demand_base_capacity
   on_demand_percentage_above_base = var.on_demand_percentage_above_base
+  lb_target_group_app_arn         = module.alb.lb_target_group_app_arn
 }
 
 #########################################################

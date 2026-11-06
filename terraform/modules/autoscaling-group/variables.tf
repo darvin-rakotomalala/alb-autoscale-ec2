@@ -79,3 +79,8 @@ variable "launch_template_latest_version" {
   description = "Latest version number of the web fleet launch template"
   type        = string
 }
+
+variable "lb_target_group_app_arn" {
+  description = "ARN of the application target group"
+  type        = string
+}

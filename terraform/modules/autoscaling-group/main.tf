@@ -68,6 +68,11 @@ resource "aws_autoscaling_policy" "target_tracking_requests" {
     }
     target_value = 1000 # Adjust as you need
   }
+
+  depends_on = [
+    var.alb_target_group_resource_label,
+    var.lb_target_group_app_arn,
+  ]
 }
 
 # Scales on average CPU across the fleet. Works alongside the request-count policy:
